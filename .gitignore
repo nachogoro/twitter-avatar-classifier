@@ -4,3 +4,5 @@
 *.pyc
 *py.class
 *DO-NOT-COMMIT.txt
+.python-version
+.ropeproject
