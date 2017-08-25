@@ -1,4 +1,5 @@
-from PIL import Image
+#!/usr/bin/env python
+
 import clparser
 import numpy.linalg
 import imageprocessor
@@ -8,12 +9,12 @@ import pickle
 import sys
 import time
 import twitter
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 DEFAULT_CRED_FILE = '.twitter-credentials.db'
 DEFAULT_DIRECTORY = 'twitter-avatars'
 
-# Generate your own APP_KEY and APP_SECRET from Twitter's developer page and 
+# Generate your own APP_KEY and APP_SECRET from Twitter's developer page and
 # add them here
 APP_KEY = ''
 APP_SECRET = ''
@@ -46,7 +47,7 @@ def dumpObject(filename, object):
 
 # Sorts a dictionary by value, in ascending order
 def sortDictionary(dictionary):
-    return sorted(dictionary.items(), key=lambda x:x[1])
+    return sorted(list(dictionary.items()), key=lambda x:x[1])
 
 # Prints a progress bar with a resolution of 5%
 # i is the number of 5% intervals that have passed
@@ -81,7 +82,7 @@ def main(argv=sys.argv):
     # Only connect to Twitter if the avatars have not been provided
     if givenAvatars == True:
         if not (os.path.isdir(directory) and os.listdir(directory)):
-            print('ERROR: Could not find avatars in %s' % directory)
+            print(('ERROR: Could not find avatars in %s' % directory))
             sys.exit()
     else:
         # Create directory if it does not exist
@@ -97,7 +98,7 @@ def main(argv=sys.argv):
 
         # If no credentials have been loaded, ask the user about them
         if twitterCredentials is None:
-            twitterCredentials = twitteroauth.getAccessToken()
+            twitterCredentials = twitteroauth.getAccessToken(APP_KEY, APP_SECRET)
             # Store them for future use
             dumpObject(DEFAULT_CRED_FILE, twitterCredentials)
 
@@ -107,7 +108,7 @@ def main(argv=sys.argv):
                           twitterCredentials['oauth_token_secret'])
 
         thisUser = api.VerifyCredentials()
-        print('Authenticated as @%s' % thisUser.screen_name)
+        print(('Authenticated as @%s' % thisUser.screen_name))
 
         # Get all users one follows
         usersID = api.GetFriendIDs()
@@ -127,11 +128,11 @@ def main(argv=sys.argv):
             profile_image = user.profile_image_url.rsplit('normal', 1)
             profile_image = 'bigger'.join(profile_image)
             # Download and save avatar for this user
-            urllib.urlretrieve(profile_image, directory+'/'+user.screen_name+'.jpg')
+            urllib.request.urlretrieve(profile_image, directory+'/'+user.screen_name+'.jpg')
             time.sleep(sleepingSeconds)
         # Print 100% (to make up for the poor approximation)
         printProgressBar(20)
-        print
+        print()
 
     # Process each image and store its distance as an entry in distance dictionary
     distance={}
@@ -148,16 +149,16 @@ def main(argv=sys.argv):
     # Print 100% (to make up for the poor approximation)
     printProgressBar(20)
 
-    print
+    print()
     # Print to screen
     sorted_dict = sortDictionary(distance)
     # Only the first 20 users
     if numElems > 20:
         numElems = 20
     sorted_dict = sorted_dict[:numElems]
-    print('Users sorted by how %s their avatar is:' % param.get('color'))
+    print(('Users sorted by how %s their avatar is:' % param.get('color')))
     for x in sorted_dict:
-        print("@" + x[0])
+        print(("@" + x[0]))
 
 if __name__ == "__main__":
     main()

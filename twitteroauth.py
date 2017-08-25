@@ -1,4 +1,4 @@
-import urlparse
+import urllib.parse
 import oauth2 as oauth
 
 def getAccessToken(consumer_key, consumer_secret):
@@ -17,21 +17,21 @@ def getAccessToken(consumer_key, consumer_secret):
     if resp['status'] != '200':
         raise Exception("Invalid response %s." % resp['status'])
 
-    request_token = dict(urlparse.parse_qsl(content))
+    request_token = dict(urllib.parse.parse_qsl(content))
 
     # Step 2: Redirect to the provider. Since this is a CLI script we do not 
     # redirect. In a web application you would redirect the user to the URL
     # below.
 
-    print "Go to the following link in your browser:"
-    print "%s?oauth_token=%s" % (authorize_url, request_token['oauth_token'])
-    print 
+    print("Go to the following link in your browser:")
+    print("%s?oauth_token=%s" % (authorize_url, request_token['oauth_token']))
+    print() 
 
     # After the user has granted access to you, the consumer, the provider will
     # redirect you to whatever URL you have told them to redirect to. You can 
     # usually define this in the oauth_callback argument as well.
     accepted = 'n'
-    oauth_verifier = raw_input('What is the PIN? ')
+    oauth_verifier = input('What is the PIN? ')
 
     # Step 3: Once the consumer has redirected the user back to the oauth_callback
     # URL you can request the access token the user has approved. You use the 
@@ -44,6 +44,6 @@ def getAccessToken(consumer_key, consumer_secret):
     client = oauth.Client(consumer, token)
 
     resp, content = client.request(access_token_url, "POST")
-    access_token = dict(urlparse.parse_qsl(content))
+    access_token = dict(urllib.parse.parse_qsl(content))
 
     return access_token
